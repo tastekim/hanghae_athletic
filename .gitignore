@@ -44,4 +44,4 @@ app.*.map.json
 /web
 /ios
 /android
-/lib/.firebase_cofing.dart
+firebase_options.dart
