@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hanghae_athletic/util/nickname_generator.dart';
 import 'package:hanghae_athletic/view/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +13,9 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
   var app = await Firebase.initializeApp(
@@ -25,11 +31,11 @@ void main() async {
     String? myUid = prefs.getString('uid');
     String? myNickname = prefs.getString('nickname');
 
-    if (myPoints == null ) {
+    if (myPoints == null) {
       await prefs.setInt('points', 0);
     }
 
-    if (myUid ==null) {
+    if (myUid == null) {
       await prefs.setString('uid', user.user!.uid);
     }
 
@@ -46,9 +52,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-void initialize() async {
-
-}
+void initialize() async {}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

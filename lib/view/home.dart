@@ -83,19 +83,19 @@ class _HomeState extends State<Home> {
                   Icon(
                     isPlay ? Icons.pause_circle : Icons.play_circle,
                     color: Colors.white,
-                    size: size.width(30),
+                    size: size.width(26),
                   ),
                 ],
               ),
             ),
             SizedBox(
-              height: size.width(100),
+              height: size.width(50),
             ),
             Text(
               "너도나도",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: size.width(58),
+                fontSize: size.width(40),
                 fontFamily: 'BM',
                 fontWeight: FontWeight.w700,
               ),
@@ -107,7 +107,7 @@ class _HomeState extends State<Home> {
                     text: "테",
                     style: TextStyle(
                       color: Colors.orangeAccent,
-                      fontSize: size.width(58),
+                      fontSize: size.width(40),
                       fontFamily: 'BM',
                       fontWeight: FontWeight.w700,
                     ),
@@ -116,7 +116,7 @@ class _HomeState extends State<Home> {
                     text: "트",
                     style: TextStyle(
                       color: Colors.green,
-                      fontSize: size.width(58),
+                      fontSize: size.width(40),
                       fontFamily: 'BM',
                       fontWeight: FontWeight.w700,
                     ),
@@ -125,7 +125,7 @@ class _HomeState extends State<Home> {
                     text: "리",
                     style: TextStyle(
                       color: Colors.redAccent,
-                      fontSize: size.width(58),
+                      fontSize: size.width(40),
                       fontFamily: 'BM',
                       fontWeight: FontWeight.w700,
                     ),
@@ -134,7 +134,7 @@ class _HomeState extends State<Home> {
                     text: "스",
                     style: TextStyle(
                       color: Colors.lightBlue,
-                      fontSize: size.width(58),
+                      fontSize: size.width(40),
                       fontFamily: 'BM',
                       fontWeight: FontWeight.w700,
                     ),
@@ -147,13 +147,13 @@ class _HomeState extends State<Home> {
             ),
             Container(
               alignment: Alignment.centerLeft,
-              width: size.width(244),
+              width: size.width(226),
               child: Text(
                 '내 점수 : $points',
                 style: TextStyle(
                   fontFamily: 'BM',
                   color: Colors.white,
-                  fontSize: size.width(20),
+                  fontSize: size.width(16),
                 ),
               ),
             ),
@@ -166,7 +166,7 @@ class _HomeState extends State<Home> {
                   style: TextStyle(
                     fontFamily: 'BM',
                     color: Colors.white,
-                    fontSize: size.width(20),
+                    fontSize: size.width(16),
                   ),
                 ),
                 Container(
@@ -197,7 +197,7 @@ class _HomeState extends State<Home> {
                     style: TextStyle(
                       decorationThickness: 0,
                       fontFamily: 'BM',
-                      fontSize: size.width(20),
+                      fontSize: size.width(16),
                       color: Colors.white,
                     ),
                   ),
@@ -207,7 +207,7 @@ class _HomeState extends State<Home> {
             Container(
               alignment: Alignment.center,
               width: size.width(270),
-              height: size.width(200),
+              height: size.width(150),
               child: StreamBuilder(
                 stream: Record().scoreOnSnapShot(),
                 builder: (context, snapshot) {
@@ -223,7 +223,7 @@ class _HomeState extends State<Home> {
                               '${index + 1} 등: ${dataList![index]['nickname']}',
                               style: TextStyle(
                                 fontFamily: 'BM',
-                                fontSize: size.width(20),
+                                fontSize: size.width(16),
                                 color: Colors.white,
                               ),
                             ),
@@ -231,7 +231,7 @@ class _HomeState extends State<Home> {
                               '${dataList![index]['score']} 점',
                               style: TextStyle(
                                 fontFamily: 'BM',
-                                fontSize: size.width(20),
+                                fontSize: size.width(16),
                                 color: Colors.white,
                               ),
                             ),
@@ -271,7 +271,7 @@ class _HomeState extends State<Home> {
               ),
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: size.width(36),
+                  horizontal: size.width(28),
                   vertical: size.width(12),
                 ),
                 decoration: BoxDecoration(
@@ -288,7 +288,7 @@ class _HomeState extends State<Home> {
                   style: TextStyle(
                     fontFamily: 'BM',
                     color: Colors.white,
-                    fontSize: size.width(30),
+                    fontSize: size.width(24),
                   ),
                 ),
               ),
