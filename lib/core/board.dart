@@ -48,6 +48,9 @@ class _GameBoardState extends State<GameBoard> {
   double startDx = 0;
   double moveDx = 0;
 
+  // game pause & resume state
+  bool isPaused = false;
+
   @override
   void initState() {
     super.initState();
@@ -73,22 +76,26 @@ class _GameBoardState extends State<GameBoard> {
     Timer.periodic(
       frameRate,
       (timer) {
-        setState(() {
-          // clear lines
-          clearLines();
+        if (isPaused) {
+          return;
+        } else {
+          setState(() {
+            // clear lines
+            clearLines();
 
-          // check landing
-          checkLanding();
+            // check landing
+            checkLanding();
 
-          // check if game is over
-          if (gameOver) {
-            timer.cancel();
-            showGameOverDialog();
-          }
+            // check if game is over
+            if (gameOver) {
+              timer.cancel();
+              showGameOverDialog();
+            }
 
-          // move current piece down
-          currentPiece.movePiece(Direction.down);
-        });
+            // move current piece down
+            currentPiece.movePiece(Direction.down);
+          });
+        }
       },
     );
   }
@@ -129,6 +136,10 @@ class _GameBoardState extends State<GameBoard> {
             TextButton(
               onPressed: () async {
                 setPoints();
+
+                // reset game
+                resetGame();
+
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
@@ -148,8 +159,8 @@ class _GameBoardState extends State<GameBoard> {
             TextButton(
               onPressed: () {
                 setPoints();
-                // reset game
-                resetGame();
+                // restart game
+                restartGame();
 
                 Navigator.pop(context);
               },
@@ -168,8 +179,8 @@ class _GameBoardState extends State<GameBoard> {
     );
   }
 
-  // reset game
-  void resetGame() {
+  // restart game
+  void restartGame() {
     // clear the game board
     gameBoard = List.generate(
       colLength,
@@ -185,6 +196,22 @@ class _GameBoardState extends State<GameBoard> {
 
     // start game again
     startGame();
+  }
+
+  // reset game
+  void resetGame() {
+    // clear the game board
+    gameBoard = List.generate(
+      colLength,
+      (i) => List.generate(rowLength, (j) => null),
+    );
+
+    // new game
+    gameOver = false;
+    currentScore = 0;
+
+    // create new piece
+    createNewPiece();
   }
 
   // check for collision in a future position
@@ -343,82 +370,122 @@ class _GameBoardState extends State<GameBoard> {
   @override
   Widget build(BuildContext context) {
     SizeConfig size = SizeConfig(context);
+    double deviceWidth = MediaQuery.of(context).size.shortestSide;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            SizedBox(
-              height: size.width(30),
-            ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // SizedBox(
+              //   height: size.width(30),
+              // ),
 
-            /// Score
-            Text(
-              currentScore.toString(),
-              style: TextStyle(
-                fontFamily: 'BM',
-                color: Colors.white,
-                fontSize: size.width(40),
-              ),
-            ),
-            SizedBox(
-              height: size.width(40),
-            ),
-            Expanded(
-              child: GestureDetector(
-                onPanUpdate: (detail) {
-                  setState(() {
-                    moveDx += detail.delta.dx;
-                    if (moveDx >= 43) {
-                      moveRight();
-                      moveDx = 0;
-                    } else if (moveDx <= -43) {
-                      moveLeft();
-                      moveDx = 0;
-                    }
-                  });
-                },
-                onTap: () {
-                  rotatePiece();
-                },
-                child: GridView.builder(
-                  itemCount: rowLength * colLength,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: rowLength,
-                  ),
-                  itemBuilder: (context, index) {
-                    // get row and col of each index
-                    int row = (index / rowLength).floor();
-                    int col = index % rowLength;
-
-                    // current piece
-                    if (currentPiece.position.contains(index)) {
-                      return Pixel(
-                        color: currentPiece.color,
-                      );
-                    }
-
-                    // landed pieces
-                    else if (gameBoard[row][col] != null) {
-                      final Mino? minoType = gameBoard[row][col];
-                      return Pixel(
-                        color: minoColors[minoType],
-                      );
-                    }
-
-                    // blank pixel
-                    else {
-                      return Pixel(
-                        color: Colors.grey[900],
-                      );
-                    }
-                  },
+              /// Score
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: size.width(10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(
+                      Icons.pause_circle,
+                      color: Colors.black,
+                      size: size.width(40),
+                    ),
+                    Text(
+                      currentScore.toString(),
+                      style: TextStyle(
+                        fontFamily: 'BM',
+                        color: Colors.white,
+                        fontSize: size.width(40),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isPaused = !isPaused;
+                        });
+                      },
+                      child: Icon(
+                        isPaused ? Icons.play_arrow : Icons.pause,
+                        color: Colors.white,
+                        size: size.width(40),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              // SizedBox(
+              //   height: size.width(40),
+              // ),
+              Expanded(
+                child: SizedBox(
+                  width: deviceWidth <= FormFactor.handset
+                      ? deviceWidth
+                      : size.width(300),
+                  child: GestureDetector(
+                    onPanUpdate: (detail) {
+                      if (isPaused) {
+                        return;
+                      } else {
+                        setState(() {
+                          moveDx += detail.delta.dx;
+                          if (moveDx >= 43) {
+                            moveRight();
+                            moveDx = 0;
+                          } else if (moveDx <= -43) {
+                            moveLeft();
+                            moveDx = 0;
+                          }
+                        });
+                      }
+                    },
+                    onTap: () {
+                      rotatePiece();
+                    },
+                    child: GridView.builder(
+                      itemCount: rowLength * colLength,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: rowLength,
+                      ),
+                      itemBuilder: (context, index) {
+                        // get row and col of each index
+                        int row = (index / rowLength).floor();
+                        int col = index % rowLength;
+
+                        // current piece
+                        if (currentPiece.position.contains(index)) {
+                          return Pixel(
+                            color: currentPiece.color,
+                          );
+                        }
+
+                        // landed pieces
+                        else if (gameBoard[row][col] != null) {
+                          final Mino? minoType = gameBoard[row][col];
+                          return Pixel(
+                            color: minoColors[minoType],
+                          );
+                        }
+
+                        // blank pixel
+                        else {
+                          return Pixel(
+                            color: Colors.grey[900],
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

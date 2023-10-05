@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hanghae_athletic/util/size.dart';
 
 class Pixel extends StatelessWidget {
   var color;
@@ -7,10 +8,13 @@ class Pixel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig size = SizeConfig(context);
     return Container(
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(
+          size.width(5),
+        ),
       ),
       margin: EdgeInsets.all(1),
     );

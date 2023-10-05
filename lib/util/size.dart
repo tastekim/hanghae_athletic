@@ -9,3 +9,9 @@ class SizeConfig {
     return number * (MediaQuery.of(context).size.width / 390);
   }
 }
+
+class FormFactor {
+  static double desktop = 900;
+  static double tablet = 600;
+  static double handset = 414;
+}

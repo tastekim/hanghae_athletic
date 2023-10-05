@@ -300,7 +300,7 @@ class Piece {
             newPosition = [
               position[1] + rowLength,
               position[1],
-              position[1] + rowLength,
+              position[1] - rowLength,
               position[1] - 2 * rowLength,
             ];
             // check that this new position is a valid move before assigning it to the real position
