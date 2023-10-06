@@ -31,6 +31,9 @@ class GameBoard extends StatefulWidget {
 }
 
 class _GameBoardState extends State<GameBoard> {
+  // Timer
+  Timer? _timer;
+
   // grid dimensions
   int rowLength = 10;
   int colLength = 15;
@@ -50,6 +53,7 @@ class _GameBoardState extends State<GameBoard> {
 
   // game pause & resume state
   bool isPaused = false;
+  bool isLocked = false;
 
   @override
   void initState() {
@@ -59,7 +63,13 @@ class _GameBoardState extends State<GameBoard> {
     startGame();
   }
 
-  void setPoints() async {
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> setPoints() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     var currRecord = prefs.getInt('points');
@@ -73,7 +83,7 @@ class _GameBoardState extends State<GameBoard> {
 
   // game loop
   void gameLoop(Duration frameRate) {
-    Timer.periodic(
+    _timer = Timer.periodic(
       frameRate,
       (timer) {
         if (isPaused) {
@@ -93,7 +103,9 @@ class _GameBoardState extends State<GameBoard> {
             }
 
             // move current piece down
-            currentPiece.movePiece(Direction.down);
+            if (!isLocked) {
+              currentPiece.movePiece(Direction.down);
+            }
           });
         }
       },
@@ -135,7 +147,7 @@ class _GameBoardState extends State<GameBoard> {
           actions: [
             TextButton(
               onPressed: () async {
-                setPoints();
+                await setPoints();
 
                 // reset game
                 resetGame();
@@ -157,8 +169,8 @@ class _GameBoardState extends State<GameBoard> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                setPoints();
+              onPressed: () async {
+                await setPoints();
                 // restart game
                 restartGame();
 
@@ -287,6 +299,18 @@ class _GameBoardState extends State<GameBoard> {
     }
   }
 
+  // move down fast
+  void moveDownFast() {
+    if (isLocked) return; // 잠겨있는 경우 아무것도 하지 않음
+    isLocked = true; // 잠금 상태로 변경
+
+    while (!checkCollision(Direction.down)) {
+      currentPiece.movePiece(Direction.down);
+    }
+
+    isLocked = false; // 잠금 해제
+  }
+
   // rotate piece
   void rotatePiece() {
     setState(() {
@@ -319,7 +343,7 @@ class _GameBoardState extends State<GameBoard> {
         }
 
         // set the top row to empty
-        gameBoard[0] = List.generate(row, (index) => null);
+        gameBoard[0] = List.generate(rowLength, (index) => null);
 
         // Increase the score
         currentScore++;
@@ -428,6 +452,11 @@ class _GameBoardState extends State<GameBoard> {
                       ? deviceWidth
                       : size.width(300),
                   child: GestureDetector(
+                    onVerticalDragEnd: (detail) {
+                      if (detail.primaryVelocity! > 0) {
+                        moveDownFast();
+                      }
+                    },
                     onPanUpdate: (detail) {
                       if (isPaused) {
                         return;
@@ -445,7 +474,11 @@ class _GameBoardState extends State<GameBoard> {
                       }
                     },
                     onTap: () {
-                      rotatePiece();
+                      if (isPaused) {
+                        return;
+                      } else {
+                        rotatePiece();
+                      }
                     },
                     child: GridView.builder(
                       itemCount: rowLength * colLength,
