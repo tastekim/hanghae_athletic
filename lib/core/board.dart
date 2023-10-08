@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hanghae_athletic/service/firestore.dart';
+import 'package:hanghae_athletic/util/next_piece.dart';
 import 'package:hanghae_athletic/util/piece.dart';
 import 'package:hanghae_athletic/util/pixel.dart';
 import 'package:hanghae_athletic/util/size.dart';
@@ -40,6 +41,9 @@ class _GameBoardState extends State<GameBoard> {
 
   // current tetris piece
   Piece currentPiece = Piece(type: Mino.L);
+  NextPiece nextPiece = NextPiece(type: Mino.L);
+
+  Mino? nextType;
 
   // current score
   int currentScore = 0;
@@ -364,14 +368,37 @@ class _GameBoardState extends State<GameBoard> {
     return false;
   }
 
-  void createNewPiece() {
-    // create a random object to generate random mino types
+  Mino initializeRandomType() {
     Random rand = Random();
 
-    // create a new piece with random type
-    Mino randomType = Mino.values[rand.nextInt(Mino.values.length)];
-    currentPiece = Piece(type: randomType);
-    currentPiece.initializePiece();
+    return Mino.values[rand.nextInt(Mino.values.length)];
+  }
+
+  void createNewPiece() {
+    // // create a random object to generate random mino types
+    // Random rand = Random();
+    //
+    // // create a new piece with random type
+    // Mino randomType = Mino.values[rand.nextInt(Mino.values.length)];
+    // currentPiece = Piece(type: randomType);
+    // currentPiece.initializePiece();
+    //
+    // nextPiece = NextPiece(type: randomType);
+    // nextPiece.initializePiece();
+    if (nextType == null) {
+      nextType = initializeRandomType();
+      currentPiece = Piece(type: nextType!);
+      currentPiece.initializePiece();
+      nextType = initializeRandomType();
+      nextPiece = NextPiece(type: nextType!);
+      nextPiece.initializePiece();
+    } else {
+      currentPiece = Piece(type: nextType!);
+      currentPiece.initializePiece();
+      nextType = initializeRandomType();
+      nextPiece = NextPiece(type: nextType!);
+      nextPiece.initializePiece();
+    }
 
     // Since our game over condition is if there is a piece at the top level,
     // you want to check if the game is over when you create a new piece
@@ -385,6 +412,9 @@ class _GameBoardState extends State<GameBoard> {
 
   void startGame() {
     currentPiece.initializePiece();
+    nextType = initializeRandomType();
+    nextPiece = NextPiece(type: nextType!);
+    nextPiece.initializePiece();
 
     // frame refresh rate
     Duration frameRate = const Duration(milliseconds: 400);
@@ -415,10 +445,29 @@ class _GameBoardState extends State<GameBoard> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.pause_circle,
-                      color: Colors.black,
-                      size: size.width(40),
+                    SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: GridView.builder(
+                        clipBehavior: Clip.hardEdge,
+                          itemCount: 16,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                          ),
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            // current piece
+                            if (nextPiece.position.contains(index)) {
+                              return NextPixel(
+                                color: nextPiece.color,
+                              );
+                            } else {
+                              return NextPixel(
+                                color: Colors.grey[900],
+                              );
+                            }
+                          }),
                     ),
                     Text(
                       currentScore.toString(),

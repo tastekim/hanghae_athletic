@@ -20,3 +20,23 @@ class Pixel extends StatelessWidget {
     );
   }
 }
+
+class NextPixel extends StatelessWidget {
+  var color;
+
+  NextPixel({super.key, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    SizeConfig size = SizeConfig(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(
+          size.width(1),
+        ),
+      ),
+      margin: EdgeInsets.all(1),
+    );
+  }
+}
